@@ -1,29 +1,7 @@
-# app-vue
+# Template de base de création Vuejs
 
-## Project setup
-```
-yarn install
-```
+### Pourquoi ce template ?
 
-### Compiles and hot-reloads for development
-```
-yarn run serve
-```
+Ce template a pour principe de simplifier la création de projet et de partir sur une base commune.
 
-### Compiles and minifies for production
-```
-yarn run build
-```
-
-### Run your tests
-```
-yarn run test
-```
-
-### Lints and fixes files
-```
-yarn run lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+Il contient plusieurs élément réutilisables par la suite.
