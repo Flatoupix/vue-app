@@ -6,9 +6,11 @@ import Vuetify from "vuetify";
 import fr from "vuetify/es5/locale/fr";
 import eudoFront from "eudo-front";
 import "vuetify/dist/vuetify.min.css";
+import axios from 'axios'
+import '@mdi/font/css/materialdesignicons.css'
 
 Vue.use(eudoFront);
-
+Vue.prototype.$http = axios
 const opts = {
   icons: {
     iconfont: "mdi"

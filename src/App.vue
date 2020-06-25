@@ -1,135 +1,83 @@
 <template>
-  <v-app :ripple="false">
-    <!-- <logo class="mx-auto" :style="{ width: '30em' }"></logo> -->
-    <v-form ref="form">
-      <v-container @click.ctrl="updateTime()">
-        <v-row class="align-center justify-space-around">
-          <edn-load message="edn-load" form="double" anim="dots"></edn-load>
-          <edn-load message="edn-load" form="simple" anim="blink"></edn-load>
-          <edn-load message="edn-load" form="fill"></edn-load>
-        </v-row>
-        <edn-num label="edn-num" v-model="inptNum" tooltip="NOMBRE"></edn-num>
-        <edn-field label="edn-field" v-model="inptText"></edn-field>
-        <edn-cat label="edn-cat" v-model="selectedCat" :items="cat"></edn-cat>
-        <edn-cat-x
-          label="edn-cat-x"
-          v-model="ingredient"
-          :items="recette"
-          tooltip="Selection de catégories"
-        ></edn-cat-x>
-        <edn-date v-model="dateInpt" label="edn-date" :popup="true" required />
-        <edn-time
-          v-model="time"
-          label="edn-time"
-          required="Ce champs doit être rempli !"
-        />
-        <v-row class="align-center justify-center">
-  
-            <edn-date
-              v-model="dateInpt"
-              :popup="false"
-              :allowed-dates="allowedDates"
-              class="mx-3"
-            />
-            <edn-time
-              class="mx-3"
-              v-model="time"
-              label="Choisissez une plage horaire"
-              tripStyle
-              :slots="[
-                '00:20',
-                '00:40',
-                '01:20',
-                '01:40',
-                '02:40',
-                '03:40',
-                '04:40',
-                '05:40',
-                '06:40'
-              ]"
-            />
-         
-        </v-row>
-        <edn-memo
-          label="edn-memo"
-          v-model="inptMemo"
-          :size="'normal'"
-          html
-          :required="'Un string'"
-        ></edn-memo>
-        <edn-mail label="edn-mail" v-model="mail" :required="true" />
-        <edn-phone label="edn-phone" v-model="phone"></edn-phone>
-        <edn-check
-          label="edn-check"
-          v-model="checked"
-          :required="true"
-        ></edn-check>
-        <edn-switch label="edn-switch" v-model="switched"></edn-switch>
-        <edn-radio
-          label="edn-radio"
-          :radios="radios"
-          v-model="radioSelect"
-        ></edn-radio>
-        <edn-color label="edn-color" v-model="selectedColor"></edn-color>
-        <v-row class="justify-center align-self-center">
-          <edn-btn @click.native="Validate()">Valider</edn-btn>
-          <edn-btn @click.native="Reset()" alternate>Reset</edn-btn>
-        </v-row>
-      </v-container>
-    </v-form>
+  <v-app>
+    <logo class="mx-auto mt-10"></logo>
+    <v-container>
+      <v-row>
+        <v-col cols="4">
+          <v-combobox
+            placeholder="Tapez votre recherche ici"
+            :items="namesNgroups"
+            v-model="fltrdUsrs"
+            clearable
+          ></v-combobox>
+        </v-col>
+        <v-col cols="5"> </v-col>
+        <v-col cols="3">
+          <v-switch :ripple="false" inset v-model="cardMod" label="Mode carte"></v-switch>
+        </v-col>
+      </v-row>
+      <v-row justify="space-around">
+        <!-- <transition-group name="list" tag="div"> -->
+        <user
+          v-for="user in users"
+          :cardMod="cardMod"
+          v-show="
+            fltrdUsrs == null ||
+              fltrdUsrs.length == 0 ||
+              fltrdUsrs.includes(user.FirstName + ' ' + user.LastName) ||
+              fltrdUsrs.includes(user.UserHotcom.Group.Name)
+          "
+          :key="user.id"
+          :User="user"
+          :size="localSize"
+        >
+        </user>
+        <!-- </transition-group> -->
+      </v-row>
+    </v-container>
   </v-app>
 </template>
-
 <script>
-export default {
-  name: "App",
+import logo from './components/logo'
+import user from './components/user'
+import datas from './assets/localDatas.json'
 
+export default {
+  components: {
+    logo,
+    user,
+  },
   data() {
     return {
-      civility: ["M.", "Mme"],
-      msgRequis: "Champs requis !",
-      citiesList: [],
-      loading: false,
-      inptNum: null,
-      mail: "",
-      checked: true,
-      switched: true,
-      allowedDates: val => parseInt(val.split("-")[2], 10) % 2 === 0,
-      inptText: "",
-      dateInpt: "",
-      inptMemo: "",
-      ingredient: [],
-      recette: ["Cat 3", "Cat 4", "Cat 5"],
-      cat: ["Cat 1", "Cat 2", "Cat 3", "Cat 4", "Cat 5"],
-      selectedCat: "",
-      radioSelect: null,
-      selectedColor: "",
-      radios: [
-        {
-          label: "Choix 1",
-          value: "1"
-        },
-        {
-          label: "Choix 2",
-          value: "2"
-        }
-      ],
-      contentAbc: "abcdefghijklmnopqtrsuvwxyz",
-      date: "",
-      time: "",
-      phone: ""
-    };
-  },
-  methods: {
-    updateTime() {
-      this.time = "09:00";
-    },
-    Validate() {
-      this.$refs.form.validate();
-    },
-    Reset() {
-      this.$refs.form.reset();
+      users: datas,
+      usersNames: [],
+      usersGroups: [],
+      namesNgroups: [],
+      fltrdUsrs: null,
+      localSize: 300,
+      cardMod: false,
     }
-  }
-};
+  },
+  watch: {
+    users() {},
+  },
+  mounted() {
+    this.users.forEach(user => {
+      this.usersNames.push(user.FirstName + ' ' + user.LastName)
+      if (!this.usersGroups.includes(user.UserHotcom.Group.Name)) {
+        this.usersGroups.push(user.UserHotcom.Group.Name)
+      }
+    })
+    this.namesNgroups = this.usersNames.concat(this.usersGroups)
+    // this.$http
+    //   .get('https://ww2.eudonet.com/SPECIF/EUDO_HOTCOM_EUDOWEB/root/hotcom/Trombinoscope')
+    //   .then(response => (this.users = response.data))
+  },
+}
 </script>
+<style lang="stylus">
+div.v-input--is-label-active
+  label.v-label.theme--light
+    font-weight bold
+    color var(--v-primary-base)
+</style>
